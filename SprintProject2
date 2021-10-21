@@ -1,0 +1,679 @@
+"""
+    Sprint week 2 - python program
+    Travel claim entry system, with reports and * optional * graph
+    Barry Poole, *Matthew Pletsch*, Stephen Squire
+    Started on: July 26, 2021
+    Modified: July 27, 2021
+              July 28, 2021
+              July 29, 2021
+"""
+
+# import statements
+# pip install MatPlotLib in terminal to install matplotlib
+
+import datetime
+import re
+import matplotlib.pyplot as plt
+
+# creating a variable containing today
+
+Today = datetime.datetime.now()
+Today = Today.strftime("%m-%d-%Y")
+
+# define the functions, this will be the meat of our program
+# Need to incorporate 2 simple functions that take parameters and return values.
+
+
+def gen_int(arg1):
+    """
+    This function receives the start date from Claims.dat and converts it into an integer
+    :param arg1: Start date
+    :return: integer
+    """
+    arg1 = datetime.datetime.strptime(arg1, "%d-%b-%y")
+    arg1 = arg1.month
+    return arg1
+
+
+def y_acc(arg1, arg2):
+    """
+    This function receives the claim total and the integer derived from a record and assigns the
+    claim total to a month via a chain of if statements. it returns a value for each month
+    :param arg1: the integer
+    :param arg2: the claim total
+    :return: 12 distinct claim totals for accumulating
+    """
+    JanAcc = 0
+    FebAcc = 0
+    MarAcc = 0
+    AprAcc = 0
+    MayAcc = 0
+    JunAcc = 0
+    JulAcc = 0
+    AugAcc = 0
+    SepAcc = 0
+    OctAcc = 0
+    NovAcc = 0
+    DecAcc = 0
+    if arg1 == 1:
+        JanAcc = arg2
+    if arg1 == 2:
+        FebAcc = arg2
+    if arg1 == 3:
+        MarAcc = arg2
+    if arg1 == 4:
+        AprAcc = arg2
+    if arg1 == 5:
+        MayAcc = arg2
+    if arg1 == 6:
+        JunAcc = arg2
+    if arg1 == 7:
+        JulAcc = arg2
+    if arg1 == 8:
+        AugAcc = arg2
+    if arg1 == 9:
+        SepAcc = arg2
+    if arg1 == 10:
+        OctAcc = arg2
+    if arg1 == 11:
+        NovAcc = arg2
+    if arg1 == 12:
+        DecAcc = arg2
+    return JanAcc, FebAcc, MarAcc, AprAcc, MayAcc, JunAcc, JulAcc, AugAcc, SepAcc, OctAcc, NovAcc, DecAcc
+
+
+# Function to add customer information to Claims.dat file
+# This function will be called within another function
+
+
+def append_claims(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14):
+    """
+    This function will take the information of the input function and write it to the Claims.dat file
+    :return: a message that says this operation was successful
+    """
+    with open("Claims.dat", mode="a+") as file:
+        print(f"{arg1}, {arg2}, {arg3}, {arg4}, {arg5}, {arg6}, {arg7}, "
+              f"{arg8}, {arg9}, {arg10:.2f}, {arg11:.2f}, {arg12:.2f}, {arg13:.2f}, {arg14:.2f}", file=file)
+    print("Claims.dat updated successfully")
+
+
+# Function to read values from TCDef.dat file and copy into variables
+
+
+def read_TCDef():
+    """
+    This Function can be called any time we need to load the values from TCDef.dat
+    into our program, it returns the values as a list of CSV. All returned variables are
+    strings, remember to change format before use in calculations.
+    :return: the 6 constants as string objects
+    """
+    with open('TCDef.dat', mode='r') as file:
+        temp = []
+        for item in file:
+            temp.append(item.strip())
+
+    return temp[0], temp[1], temp[2], temp[3], temp[4], temp[5]
+
+
+# Function to input travel claims, saving inputs to a file Claims.dat
+
+
+def travel_claim_input():
+    """
+    This function is for inputting the travel claim information and updating the Claims.dat file.
+    All inputs and calculations as well as a basic printed report of those values will be generated
+    by this function. Claim num will be iterated and saved after each claim, if saved.
+    At function end an option to add another claim without returning to the main menu will be given.
+    :return: a message that the claim information was saved successfully
+    """
+    while True:
+        print("\nTravel Claim Data Entry ")
+
+        ClaimNum, HST_RATE, LOW_PER_DIE_RATE, HIGH_PER_DIE_RATE, MILEAGE_RATE, RENTAL_RATE = read_TCDef()
+        print("TCDef.dat file information loaded successfully")
+        print()
+
+        while True:
+            EmpNum = input("Enter the employee number: ")
+            while True:
+                check = input(f"You entered {EmpNum}, is this correct?(Y/N): ").upper()
+                # The below regular expression is used frequently in this function. It verifies the input as either Y or N
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                else:
+                    break
+            if check == "N":
+                continue
+            else:
+                break
+
+        while True:
+            EmpNam = input("\nEnter the employee name(ie: John Smith): ").title()
+            # This regular expression checks that the name is entered with two names of only valid characters seperated by a space
+            # The issue of an employee having a single name only, ie: Madonna, could arise and be an issue here, but we believe that case will be rare in the real world
+            if not re.match("^[a-zA-Z][a-zA-Z.'-]*\s[a-zA-Z][a-zA-Z.'-]*$", EmpNam):
+                print("Name must be entered in the style of John Smith")
+            else:
+                break
+
+        while True:
+            TripLoc = input("\nEnter the trip location: ").title()
+            while True:
+                check = input(f"You Entered {TripLoc}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                else:
+                    break
+            if check == "N":
+                continue
+            else:
+                break
+
+        while True:
+            StartDat = input("\nEnter the start date of the trip(DD/MM/YYYY): ")
+            # Validating date input via conversion to date object, bare except is not ideal
+            try:
+                StartDat = datetime.datetime.strptime(StartDat, "%d/%m/%Y")
+                StartDatStr = StartDat.strftime("%d-%b-%y")
+            except:
+                print("Date must be entered in format DD/MM/YYYY")
+            else:
+                break
+
+        while True:
+            EndDat = input("\nEnter the end date of the trip(DD/MM/YYYY): ")
+            try:
+                EndDat = datetime.datetime.strptime(EndDat, "%d/%m/%Y")
+                EndDatStr = EndDat.strftime("%d-%b-%y")
+            except:
+                print("Date must be entered in format DD/MM/YYYY")
+            # ensuring the end date is after the start date
+            if (EndDat - StartDat).days <= 0:
+                print("End date must be a date after the start date")
+            else:
+                break
+
+        while True:
+            Car = input("\nSelect own car or rental(O/R): ").upper()
+            # This regular expression checks that only O or R are entered
+            if not re.match("^[OR]$", Car):
+                print("Must choose (O)wn car or (R)ental car")
+            else:
+                break
+
+        if Car == "O":
+            while True:
+                KmTot = float(input("\nEnter the km travelled on this trip: "))
+                while True:
+                    check = input(f"You Entered {KmTot}, is this correct?(Y/N): ").upper()
+                    CarStat = "Own Car"
+                    if not re.match("^[YN]$", check):
+                        print("Must enter a Y or N")
+                    else:
+                        break
+                if check == "N":
+                    continue
+                else:
+                    break
+        else:
+            CarStat = "Rental"
+            KmTot = 0
+
+        # Calculations
+        Days = (EndDat - StartDat).days
+        if Days <= 3:
+            PerDieAmt = float(LOW_PER_DIE_RATE) * Days
+        else:
+            PerDieAmt = float(HIGH_PER_DIE_RATE) * Days
+
+        if Car == "R":
+            MileAmt = float(RENTAL_RATE) * Days
+        else:
+            MileAmt = KmTot * float(MILEAGE_RATE)
+
+        ClaimAmt = PerDieAmt + MileAmt
+        HST = PerDieAmt * float(HST_RATE)
+        ClaimTot = ClaimAmt + HST
+
+        print("\nInput complete - Verify entry below")
+        print("=====================================")
+        print(f"Claim number           = {ClaimNum}")
+        print(f"Employee Number        = {EmpNum}")
+        print(f"Employee Name          = {EmpNam}")
+        print(f"Location               = {TripLoc}")
+        print(f"Start date             = {StartDatStr}")
+        print(f"End date               = {EndDatStr}")
+        print(f"Days                   = {Days}")
+        print(f"Car status             = {CarStat}")
+        print(f"Km total(Own car only) = {KmTot}")
+        print(f"Per diem amount        = ${PerDieAmt:,.2f}")
+        print(f"Mileage/Rental amount  = ${MileAmt:,.2f}")
+        print(f"Claim amount           = ${ClaimAmt:,.2f}")
+        print(f"HST @ {float(HST_RATE) * 100:,.2f}%           = ${HST:,.2f}")
+        print(f"Claim total            = ${ClaimTot:,.2f}")
+        print("=====================================")
+
+        while True:
+            check = input(f"\nIs the above entered information correct?(Y/N): ").upper()
+            if not re.match("^[YN]$", check):
+                print("Must enter a Y or N")
+            elif check == "Y":
+                # if information is entered correctly will call the function to append info to file
+                append_claims(ClaimNum, EmpNum, EmpNam, TripLoc, StartDatStr, EndDatStr, Days, CarStat,
+                              KmTot, PerDieAmt, MileAmt, ClaimAmt, HST, ClaimTot)
+            else:
+                print("You have selected N, incorrectly entered claims will not be saved")
+            break
+        # if claim isn't saved does not update claim number
+        while True:
+            if check == "N":
+                break
+            # Claim number update for the TCDef.dat file goes here
+            else:
+                ClaimNum = int(ClaimNum)
+                ClaimNum += 1
+                with open("TCDef.dat", mode="w") as file:
+                    print(ClaimNum, file=file)
+                    print(HST_RATE, file=file)
+                    print(LOW_PER_DIE_RATE, file=file)
+                    print(HIGH_PER_DIE_RATE, file=file)
+                    print(MILEAGE_RATE, file=file)
+                    print(RENTAL_RATE, file=file)
+                print("TCDef.dat updated successfully")
+                break
+
+        while True:
+            ContStat = input("\nwould you like to enter another claim?(Y/N): ").upper()
+            if not re.match("^[YN]$", ContStat):
+                print("Must enter a Y or N")
+            else:
+                break
+        if ContStat == "Y":
+            continue
+        else:
+            break
+
+
+# Function to review and replace the values in TCDef.dat file
+
+
+def update_TCDef():
+    """
+    This Function will read the TCDef file and then allow the user to choose to change
+    any of the values. User validated inputs.
+    :return: a message that file was updated successfully
+    """
+    print("\nTravel Claim Program - TCDef.dat Editor")
+    ClaimNum, HST_RATE, LOW_PER_DIE_RATE, HIGH_PER_DIE_RATE, MILEAGE_RATE, RENTAL_RATE = read_TCDef()
+    print("File Loaded successfully")
+
+    while True:
+        Def1 = input(f"\nClaim number is currently {ClaimNum}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                ClaimNum = input("Enter a new value for Claim Number: ")
+                while True:
+                    check = input(f"You have entered {ClaimNum}, is this correct?(Y/N): ").upper()
+                    if not re.match("^[YN]$", check):
+                        print("Must enter a Y or N")
+                    else:
+                        break
+                if check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("Claim Number will not be changed")
+            break
+        break
+
+    while True:
+        Def1 = input(f"\nHST RATE is currently {HST_RATE}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                HST_RATE = input("Enter a new value for HST RATE: ")
+                check = input(f"You have entered {HST_RATE}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                elif check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("HST Rate will not be changed")
+            break
+        break
+
+    while True:
+        Def1 = input(f"\nLow Per Diem Rate is currently {LOW_PER_DIE_RATE}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                LOW_PER_DIE_RATE = input("Enter a new value for Low Per Diem Rate: ")
+                check = input(f"You have entered {LOW_PER_DIE_RATE}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                elif check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("Low Per Diem Rate will not be changed")
+            break
+        break
+
+    while True:
+        Def1 = input(f"\nHigh Per Diem Rate is currently {HIGH_PER_DIE_RATE}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                HIGH_PER_DIE_RATE = input("Enter a new value for High Per Diem Rate: ")
+                check = input(f"You have entered {HIGH_PER_DIE_RATE}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                elif check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("High Per Diem Rate will not be changed")
+            break
+        break
+
+    while True:
+        Def1 = input(f"\nMileage Rate is currently {MILEAGE_RATE}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                MILEAGE_RATE = input("Enter a new value for Mileage Rate: ")
+                check = input(f"You have entered {MILEAGE_RATE}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                elif check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("Mileage Rate will not be changed")
+            break
+        break
+
+    while True:
+        Def1 = input(f"\nRental Rate is currently {RENTAL_RATE}, "
+                     f"would you like to change this value?(Y/N): ").upper()
+        if not re.match("^[YN]$", Def1):
+            print("Must enter a Y or N")
+        elif Def1 == "Y":
+            while True:
+                RENTAL_RATE = input("Enter a new value for Rental Rate: ")
+                check = input(f"You have entered {RENTAL_RATE}, is this correct?(Y/N): ").upper()
+                if not re.match("^[YN]$", check):
+                    print("Must enter a Y or N")
+                elif check == "N":
+                    continue
+                else:
+                    break
+        else:
+            print("Rental Rate will not be changed")
+            break
+        break
+
+    with open("TCDef.dat", mode="w") as file:
+        print(ClaimNum, file=file)
+        print(HST_RATE, file=file)
+        print(LOW_PER_DIE_RATE, file=file)
+        print(HIGH_PER_DIE_RATE, file=file)
+        print(MILEAGE_RATE, file=file)
+        print(RENTAL_RATE, file=file)
+    print("TCDef.dat updated successfully")
+
+
+# Function to produce a formatted table style report to review travel claims
+
+
+def report_gen():
+    """
+    This function is designed to load the Claims.dat file and generate a report based on the information within.
+    :return: No return values, just a table printed
+    """
+    ClaimNum = []
+    EmpNum = []
+    EmpNam = []
+    TripLoc = []
+    StartDat = []
+    EndDat = []
+    Days = []
+    CarStat = []
+    KmTot = []
+    PerDieAmt = []
+    MileAmt = []
+    ClaimAmt = []
+    HST = []
+    ClaimTot = []
+
+    with open("Claims.dat", mode="r") as file:
+        for item in file:
+            data = item.split(",")
+            ClaimNum.append(data[0].strip())
+            EmpNum.append(data[1].strip())
+            EmpNam.append(data[2].strip())
+            TripLoc.append(data[3].strip())
+            StartDat.append(data[4].strip())
+            EndDat.append(data[5].strip())
+            Days.append(data[6].strip())
+            CarStat.append(data[7].strip())
+            KmTot.append(data[8].strip())
+            PerDieAmt.append(float(data[9].strip()))
+            MileAmt.append(float(data[10].strip()))
+            ClaimAmt.append(float(data[11].strip()))
+            HST.append(float(data[12].strip()))
+            ClaimTot.append(float(data[13].strip()))
+
+    print("Claims.dat file loaded successfully")
+    print()
+    # Using the name NL Chocolate Company for consistency throughout the program
+    # rather than Smackers Chocolate Company as this report is labeled in the document
+    print("NL CHOCOLATE COMPANY".center(84))
+    print()
+    print(f"TRAVEL CLAIMS LISTING AS OF {Today}".center(84))
+    print()
+    print("{:<6}{:<11}{:<20}{:<11}{:>12}{:>12}{:>12}".format("Claim", "  Claim", "Salesperson", " Claim", "Per Diem",
+                                                             "Mileage", "Claim "))
+    print("{:<6}{:<11}{:<20}{:<11}{:>12}{:>12}{:>12}".format("Number", "  Date", "   Name", "Location", "Amount ",
+                                                             "Amount", "Amount"))
+    print("=" * 84)
+
+    i = 0
+    ClaimCtr = 0
+    PerDieAcc = 0
+    MileageAcc = 0
+    ClaimAcc = 0
+
+    while i < len(ClaimNum):
+        print("{:<6}{:<11}{:<19}{:<12}{:>12}{:>12}{:>12}".format(ClaimNum[i], StartDat[i], EmpNam[i], TripLoc[i],
+                                                                 f"${PerDieAmt[i]:,.2f}",
+                                                                 f"${MileAmt[i]:,.2f}", f"${ClaimAmt[i]:,.2f}"))
+        PerDieAcc += PerDieAmt[i]
+        MileageAcc += MileAmt[i]
+        ClaimAcc += ClaimAmt[i]
+        ClaimCtr += 1
+        i += 1
+
+    print("=" * 84)
+    print("{:<48}{:>12}{:>12}{:>12}".format(f"{ClaimCtr:03d} Claims listed", f"${PerDieAcc:,.2f}",
+                                            f"${MileageAcc:,.2f}", f"${ClaimAcc:,.2f}"))
+    print()
+    print("END OF REPORT".center(80))
+
+
+# *optional* Function to plot monthly travel claim statistics in a line graph
+
+
+def graph_it():
+    """
+    This function reads the Claims.dat file, compiles the information into a graph-able data set and graphs
+    the travel claims total for each month as a line graph. I will also call on a separate function to generate
+    the graph lists. Graph window must be closed to continue with program.
+    :return:a line graph output to screen
+    """
+    ClaimNum = []
+    EmpNum = []
+    EmpNam = []
+    TripLoc = []
+    StartDat = []
+    EndDat = []
+    Days = []
+    CarStat = []
+    KmTot = []
+    PerDieAmt = []
+    MileAmt = []
+    ClaimAmt = []
+    HST = []
+    ClaimTot = []
+
+    with open("Claims.dat", mode="r") as file:
+        for item in file:
+            data = item.split(",")
+            ClaimNum.append(data[0].strip())
+            EmpNum.append(data[1].strip())
+            EmpNam.append(data[2].strip())
+            TripLoc.append(data[3].strip())
+            StartDat.append(data[4].strip())
+            EndDat.append(data[5].strip())
+            Days.append(data[6].strip())
+            CarStat.append(data[7].strip())
+            KmTot.append(data[8].strip())
+            PerDieAmt.append(float(data[9].strip()))
+            MileAmt.append(float(data[10].strip()))
+            ClaimAmt.append(float(data[11].strip()))
+            HST.append(float(data[12].strip()))
+            ClaimTot.append(float(data[13].strip()))
+
+    print("Claims.dat file loaded successfully")
+
+    i = 0
+    Intlist = []
+    JanAcc = 0
+    FebAcc = 0
+    MarAcc = 0
+    AprAcc = 0
+    MayAcc = 0
+    JunAcc = 0
+    JulAcc = 0
+    AugAcc = 0
+    SepAcc = 0
+    OctAcc = 0
+    NovAcc = 0
+    DecAcc = 0
+
+    while i < len(StartDat):
+        Intlist.append(gen_int(StartDat[i]))
+        Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec = y_acc(Intlist[i], ClaimTot[i])
+        JanAcc += Jan
+        FebAcc += Feb
+        MarAcc += Mar
+        AprAcc += Apr
+        MayAcc += May
+        JunAcc += Jun
+        JulAcc += Jul
+        AugAcc += Aug
+        SepAcc += Sep
+        OctAcc += Oct
+        NovAcc += Nov
+        DecAcc += Dec
+        i += 1
+
+    Ylist = [JanAcc, FebAcc, MarAcc, AprAcc, MayAcc, JunAcc, JulAcc, AugAcc, SepAcc, OctAcc, NovAcc, DecAcc]
+
+    plt.plot(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], Ylist)
+    plt.xlabel("Months")
+    plt.ylabel("Total Claims ($)")
+    plt.title("Monthly Claim Totals")
+    plt.grid(True)
+
+    plt.show()
+
+
+# Main program starts after all the functions
+# Main loop start
+while True:
+    # Menu system with header and basic explanation of what each option will do
+
+    print()
+    print("NL Chocolate Company")
+    print("Travel Claims Processing System")
+    print()
+    print("1.  Enter an Employee Travel Claim."
+          "\n2.  Edit System Default Values."
+          "\n3.  Print the Travel Claim Report."
+          "\n4.  Graph Monthly Claim Totals."
+          "\n5.  Quit Program.")
+    print()
+
+    while True:
+        Choice = input("    Enter choice (1-5): ")
+        # This regular expression ensures only a number 1-5 is entered for menu selection
+        if not re.match("^[12345]$", Choice):
+            print("Invalid selection. Please enter a number 1-5")
+        else:
+            break
+
+    if Choice == "1":
+        print()
+        print("You have selected 1, Enter an Employee Travel Claim.")
+        print()
+        travel_claim_input()
+        input("\nPress \"return\" to continue.")
+
+    if Choice == "2":
+        print()
+        print("You have selected 2, Edit System Default Values.")
+        print()
+        update_TCDef()
+        input("\nPress \"return\" to continue.")
+
+    if Choice == "3":
+        print()
+        print("You have selected 3, Print the Travel Claim Report.")
+        print()
+        report_gen()
+        input("Press \"return\" to continue.")
+
+    if Choice == "4":
+        print()
+        print("You have selected 4, Graph Monthly Claim Totals."
+              "\nClose Graph to continue.")
+        print()
+        graph_it()
+        input("\nPress \"return\" to continue.")
+
+    # Quit Program on selecting Menu option 5, double verify this choice
+    if Choice == "5":
+        print()
+        print("You have selected 5, Quit.")
+        print()
+        while True:
+            Confirm = input("Are you sure you want to quit(Y/N): ").upper()
+            if not re.match("^[YN]$", Confirm):
+                print("Must enter a Y or an N")
+            else:
+                break
+        if Confirm == "N":
+            continue
+        else:
+            break
+
+print("\nThanks for using NL Chocolate Company Travel Claim System."
+      "\nHave a nice day!")
