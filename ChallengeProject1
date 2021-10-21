@@ -1,0 +1,2078 @@
+
+''' Challenge Week Project - Math Quiz Utility
+    Code by: Stephen Squire
+    First Draft version: June 14, 2021
+    Prior to first draft date I worked on this sporatically for about 10 days as time allowed
+    Modified: June 15, 2021
+                -continued expanding number of questions in quiz and testing program stability
+                -reached desired 20 questions and tested a few runs
+              June 17, 2021
+                -test runs, caught some minor bugs in execution with incorrect timer settings,
+                 and an issue with score compounding across users when program was run in
+                 concurrent loops
+    '''
+
+# importing necesary modules
+
+import time
+import statistics
+import os
+import datetime
+import math
+'''
+# practice code kept for reference, remove later
+# defining some constants
+pts = 0
+rdpts = 0
+
+
+# wrapping input statements in time.time() variables to time response input and award bonus pts 
+start = time.time()
+Ans1 = int(input("What is 5 + 5:"))
+end = time.time()
+
+#print(start) # testing
+#print(end)
+# time.time() give time in seconds, a huge number of seconds, but seconds nonetheless
+# this makes it easy to work with, yay
+# if statements to award pts for correct answer and quick answer
+
+if Ans1 == 10:
+    rdpts = 10
+    if (end - start) < 10:
+        rdpts += 5
+pts += rdpts
+print(f"you scored {rdpts} points.")
+print(f"you have {pts} total points.")
+
+input("Hit enter to start next question: ")
+start = time.time()
+print("Give the answer below rounded to 2 decimal places.")
+Ans2 = float(input(" in the equation 3x = 5y^2 , given y =4, what is x?:"))
+end = time.time()
+
+if Ans2 == 26.67:
+    rdpts = 10
+    if (end - start) < 30:
+        # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+        rdpts += math.floor((1 - (end - start)/30) *10)
+pts += rdpts
+print(f"you have scored {rdpts} points.")
+print(f"you have {pts} total points.")
+
+input("Hit enter to start next question: ")
+# now for a question with multiple attempts
+QueAtt = 1
+# while state runs based on question attempts under threshold
+# correct answer increases attempts beyond threshold, incorrect does not on first, does on second wrong attempt
+while QueAtt <= 2:
+    Ans3 = input("In the equation y = mx + b, what variable represents the slope?: ")
+    if Ans3 == "m":
+        rdpts = 10
+        QueAtt += 2
+    else:
+        print("Thats not it, try again")
+        rdpts -= 5
+        QueAtt += 1
+pts += rdpts
+print(f"you have scored {rdpts} points.")
+print(f"you have {pts} total points.")
+
+'''
+# definition of variables for code stability
+# and some constants
+Exit = "N"
+reName = "Y"
+Confirm = "Y"
+AdminList = ["Administrator level access list"]
+UserList = ""
+Score = 0
+# defining score here caused a results issue where the next user to take the test would compound
+# their score on top of the last users score, creating inaccurate results, an issue of some
+# magnitude given this is meant to be used in an academic setting.
+ScoreList = ["List of Scores"]
+PrevUser = ['List of Users Who Have Attempted the Test']
+Question = ['List of Questions']
+Answer = ['Answers list']
+Current_Date = datetime.datetime.today().strftime('%d-%b-%Y')
+
+# check that file AdminList exists, create it if not
+# if created make sure it contains the username Admin
+
+# Import file called UserList to populate with users, create if does not exist
+# add each user that attempts the test to UserList
+# Import file UserScore containing a UserScore for each User_Name in UserList, create if does not exist
+# import files Questions and Answers, create them using base values if does not exist
+
+while True:
+    while True:
+        try:
+            with open("AdminList.txt", mode='r') as admins:
+                print('Admin list loaded')
+                for admin in admins:
+                    AdminList.append(admin.strip('\n'))
+        except:
+            with open("AdminList.txt", mode='w') as admins:
+                print('Admin', file=admins)
+            continue
+        break
+    # print(AdminList)
+
+    while True:
+        try:
+            with open("UserList.txt", mode='r') as users:
+                print('User list loaded')
+                for user in users:
+                    PrevUser.append(user.strip('\n'))
+        except:
+            with open("UserList.txt", mode='w') as users:
+                continue
+
+        break
+
+    while True:
+        try:
+            with open("ScoreList.txt", mode='r') as scores:
+                print('Score list loaded')
+                for score in scores:
+                    ScoreList.append(int(score.strip('\n')))
+        except:
+            with open("ScoreList.txt", mode='w') as scores:
+                continue
+
+        break
+    while True:
+        try:
+            with open("QList.txt", mode='r') as Q:
+                print('Questions loaded')
+                for q in Q:
+                    Question.append(q.strip('\n'))
+                #print(Question)
+        except:
+            with open('QList.txt', mode="w") as Q:
+                print('"5 + 5"', file=Q)
+                print('"5 - 5"', file=Q)
+                print('"5 x 5"', file=Q)
+                print('"5 / 5"', file=Q)
+                print('"5 ^ 3"', file=Q)
+                print('"In the equation y = m(x) +b, which variable represents slope?"', file=Q)
+                print('"What shape\'s surface area does the formula A = 2(pi)rh + 2(pi)r^2, represent?"', file=Q)
+                print('"In the equation x = a / b, which is the denominator"', file=Q)
+                print('"The equation V = (2/3)(pi)r^3, represents half the volume of what shape?"', file=Q)
+                print('"What is the highest prime number less than 100?"', file=Q)
+                print('"Given: z(y^2 + 7) = 3x(x^2 - y), y = 2, x = 4, solve for z"', file=Q)
+                print('"Given: y / (2x) = 47, y=7, solve for x"', file=Q)
+                print('"Given: (3/2)(xyz) = 100, y = 5, z = 15, solve for x"', file=Q)
+                print('"Given: 5x(z + y) = 3(x + y), x = 2, y = 8, solve for z"', file=Q)
+                print('"Given: x^y = 3yz, x = 3, y = 4, solve for z"', file=Q)
+                print('"Find the difference in volume between two cylinders. '
+                      'Cylinder 1: r = 8, h = 8 Cylinder 2: r = 5, h = 10"', file=Q)
+                print('"What is the surface area of one of eight equal slices of an 18 inch diameter pizza?"', file=Q)
+                print('"A ball of 13 inch diameter has its surface covered in 1/16 inch dimples,'
+                      ' how many dimples are on the surface of the ball(round down to nearest whole number)?"', file=Q)
+                print('"Matthew just turned 27. how many weeks has been in his 20\'s?"', file=Q)
+                print('"Bonus: How many questions was this test?"', file=Q)
+
+            continue
+        break
+
+
+    while True:
+        try:
+            with open('AList.txt', mode='r') as A:
+                print('Answers loaded')
+
+                for ans in A:
+                    Answer.append(ans.strip('\n'))
+                #print(Answer)
+
+        except:
+            with open('AList.txt', mode='w') as A:
+                print(10, file=A)
+                print(0, file=A)
+                print(25, file=A)
+                print(1, file=A)
+                print(125, file=A)
+                print("m", file=A)
+                print("cylinder", file=A)
+                print("b", file=A)
+                print("sphere", file=A)
+                print("97", file=A)
+                print(15.27, file=A)
+                print(0.07, file=A)
+                print(0.89, file=A)
+                print(-5.00, file=A)
+                print(6.75, file=A)
+                print(823.10, file=A)
+                print(31.80, file=A)
+                print(8494, file=A)
+                print(364, file=A)
+                print(20, file=A)
+            continue
+        break
+    while True:
+        User_Name = input("\nEnter user name(EXIT to quit program): ")
+        score = 0  # had to move score = 0 here to ensure that repeat tests on one session don't compound score
+        if User_Name == "":
+            print('\nUsername cannot be blank')
+        elif not User_Name.isalpha():
+            print('\nUser name must be letter characters only')
+        elif len(User_Name) > 10:
+            User_Name = User_Name[0: 10]
+            print('\nUser names of char length greater than 10 are cut off at that limit.\n'
+                  f'Is the user name "{User_Name}" acceptable?')
+            reName = input('(Y / N): ').upper()
+            if reName == "":
+                print('\ncannot be blank')
+            elif reName != "N" and reName != "Y":
+                print("\nMust enter a Y or an N")
+        elif reName == "N":
+            continue
+        else:
+            break
+    if User_Name == "EXIT":
+        break
+
+    elif User_Name in AdminList:
+        while True:
+            print(f"\nWelcome {User_Name}")
+            Edit_Stat = input("To edit assignment enter 1\n"
+                              "To view score list enter 2\n"
+                              "To Add a User to Admin list enter 3\n"
+                              "To exit Admin mode enter 4\n"
+                              "selection: ")
+            if Edit_Stat == "":
+                print('\nCannot be blank')
+            elif Edit_Stat == "1":
+                print('\nWelcome to the Quick! Math Assignments editing tool.\n'
+                      'Once started, edit session cannot be quit\n ')
+                while True:
+                    EditCon = input('Are you sure you would like to start an edit session?(Y / N):').upper()
+                    if EditCon == "":
+                        print('\ncannot be blank')
+                    elif EditCon != "N" and reName != "Y":
+                        print("\nMust enter a Y or an N")
+                    else:
+                        break
+                if EditCon == "N":
+                    Confirm = "Y"
+                    break
+
+                print('\nWelcome to math test'
+                      '\nSection 1'
+                      '\n---------'
+                      '\nQuick Fire Problems'
+                      '\nThese questions are designed to test mental math skills'
+                      '\nAnswers will be whole numbers'
+                      '\nAnswer in less than 30 seconds for full marks'
+                      '\nHalf marks awarded for correct answers after the time limit')
+                while True:
+                    print(f'\nCurrent Question 1:'
+                          f'\n{Question[1]}')
+                    while True:
+                        TempQ1 = input('Enter new question(format: "question"): ')
+                        if TempQ1 == "":
+                            print('Cannot be blank')
+                        elif TempQ1[0] != '"' or TempQ1[len(TempQ1) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 1:'
+                          f'\n{Answer[1]}')
+                    while True:
+                        try:
+                            TempA1 = int(input('Enter new answer: '))
+                        except:
+                            print('Answer must be an Integer number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ1} and {TempA1}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 2:'
+                          f'\n{Question[2]}')
+                    while True:
+                        TempQ2 = input('Enter new question(format: "question"): ')
+                        if TempQ2 == "":
+                            print('Cannot be blank')
+                        elif TempQ2[0] != '"' or TempQ2[len(TempQ2) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 2:'
+                          f'\n{Answer[2]}')
+                    while True:
+                        try:
+                            TempA2 = int(input('Enter new answer: '))
+                        except:
+                            print('Answer must be an Integer number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ2} and {TempA2}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 3:'
+                          f'\n{Question[3]}')
+                    while True:
+                        TempQ3 = input('Enter new question(format: "question"): ')
+                        if TempQ3 == "":
+                            print('Cannot be blank')
+                        elif TempQ3[0] != '"' or TempQ3[len(TempQ3) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 3:'
+                          f'\n{Answer[3]}')
+                    while True:
+                        try:
+                            TempA3 = int(input('Enter new answer: '))
+                        except:
+                            print('Answer must be an Integer number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ3} and {TempA3}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 4:'
+                          f'\n{Question[4]}')
+                    while True:
+                        TempQ4 = input('Enter new question(format: "question"): ')
+                        if TempQ4 == "":
+                            print('Cannot be blank')
+                        elif TempQ4[0] != '"' or TempQ4[len(TempQ4) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 4:'
+                          f'\n{Answer[4]}')
+                    while True:
+                        try:
+                            TempA4 = int(input('Enter new answer: '))
+                        except:
+                            print('Answer must be an Integer number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ4} and {TempA4}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 5:'
+                          f'\n{Question[5]}')
+                    while True:
+                        TempQ5 = input('Enter new question(format: "question"): ')
+                        if TempQ5 == "":
+                            print('Cannot be blank')
+                        elif TempQ5[0] != '"' or TempQ5[len(TempQ5) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 5:'
+                          f'\n{Answer[5]}')
+                    while True:
+                        try:
+                            TempA5 = int(input('Enter new answer: '))
+                        except:
+                            print('Answer must be an Integer number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ5} and {TempA5}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                print('\nSection 2 - General Knowledge'
+                      '\nThere is no time limit on this section'
+                      '\nTwo attempts are allowed on each question '
+                      '\nHalf points for correct answer on second attempt.')
+                input("\nPress enter to begin editing this section")
+                while True:
+                    print(f'\nCurrent Question 6:'
+                          f'\n{Question[6]}')
+                    while True:
+                        TempQ6 = input('Enter new question(format: "question"): ')
+                        if TempQ6 == "":
+                            print('Cannot be blank')
+                        elif TempQ6[0] != '"' or TempQ6[len(TempQ6) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 6:'
+                          f'\n{Answer[6]}')
+                    while True:
+                        TempA6 = input('Enter new answer(start and end with ": ')
+                        if TempA6 == "":
+                            print("cannot be empty")
+                        elif TempA6[0] != '"' or TempA6[len(TempA6) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ6} and {TempA6}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 7:'
+                          f'\n{Question[7]}')
+                    while True:
+                        TempQ7 = input('Enter new question(format: "question"): ')
+                        if TempQ7 == "":
+                            print('Cannot be blank')
+                        elif TempQ7[0] != '"' or TempQ7[len(TempQ7) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 7:'
+                          f'\n{Answer[7]}')
+                    while True:
+                        TempA7 = input('Enter new answer(start and end with ": ')
+                        if TempA7 == "":
+                            print("cannot be empty")
+                        elif TempA7[0] != '"' or TempA7[len(TempA7) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ7} and {TempA7}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 8:'
+                          f'\n{Question[8]}')
+                    while True:
+                        TempQ8 = input('Enter new question(format: "question"): ')
+                        if TempQ8 == "":
+                            print('Cannot be blank')
+                        elif TempQ8[0] != '"' or TempQ8[len(TempQ8) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 8:'
+                          f'\n{Answer[8]}')
+                    while True:
+                        TempA8 = input('Enter new answer(start and end with ": ')
+                        if TempA8 == "":
+                            print("cannot be empty")
+                        elif TempA8[0] != '"' or TempA8[len(TempA8) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ8} and {TempA8}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 9:'
+                          f'\n{Question[9]}')
+                    while True:
+                        TempQ9 = input('Enter new question(format: "question"): ')
+                        if TempQ9 == "":
+                            print('Cannot be blank')
+                        elif TempQ9[0] != '"' or TempQ9[len(TempQ9) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 9:'
+                          f'\n{Answer[9]}')
+                    while True:
+                        TempA9 = input('Enter new answer(start and end with ": ')
+                        if TempA9 == "":
+                            print("cannot be empty")
+                        elif TempA9[0] != '"' or TempA9[len(TempA9) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ9} and {TempA9}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+                while True:
+                    print(f'\nCurrent Question 10:'
+                          f'\n{Question[10]}')
+                    while True:
+                        TempQ10 = input('Enter new question(format: "question"): ')
+                        if TempQ10 == "":
+                            print('Cannot be blank')
+                        elif TempQ10[0] != '"' or TempQ10[len(TempQ10) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 10:'
+                          f'\n{Answer[10]}')
+                    while True:
+                        TempA10 = input('Enter new answer(start and end with ": ')
+                        if TempA10 == "":
+                            print("cannot be empty")
+                        elif TempA10[0] != '"' or TempA10[len(TempA10) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ10} and {TempA10}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                print('\nSection 3 - Complex Algebraic Analysis'
+                      '\nEquations and variables will be given, find the solution requested'
+                      '\nFull marks for speedy answers, partial for correct but slower responses'
+                      '\nRound all answers to 2 decimal places '
+                      '\n2 attempts at no penalty')
+
+                while True:
+                    print(f'\nCurrent Question 11:'
+                          f'\n{Question[11]}')
+                    while True:
+                        TempQ11 = input('Enter new question(format: "question"): ')
+                        if TempQ11 == "":
+                            print('Cannot be blank')
+                        elif TempQ11[0] != '"' or TempQ11[len(TempQ11) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 11:'
+                          f'\n{Answer[11]}')
+                    while True:
+                        try:
+                            TempA11 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ11} and {TempA11}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 12:'
+                          f'\n{Question[12]}')
+                    while True:
+                        TempQ12 = input('Enter new question(format: "question"): ')
+                        if TempQ12 == "":
+                            print('Cannot be blank')
+                        elif TempQ12[0] != '"' or TempQ12[len(TempQ12) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 12:'
+                          f'\n{Answer[12]}')
+                    while True:
+                        try:
+                            TempA12 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ12} and {TempA12}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 13:'
+                          f'\n{Question[13]}')
+                    while True:
+                        TempQ13 = input('Enter new question(format: "question"): ')
+                        if TempQ13 == "":
+                            print('Cannot be blank')
+                        elif TempQ13[0] != '"' or TempQ13[len(TempQ13) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 13:'
+                          f'\n{Answer[13]}')
+                    while True:
+                        try:
+                            TempA13 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ13} and {TempA13}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 14:'
+                          f'\n{Question[14]}')
+                    while True:
+                        TempQ14 = input('Enter new question(format: "question"): ')
+                        if TempQ14 == "":
+                            print('Cannot be blank')
+                        elif TempQ14[0] != '"' or TempQ14[len(TempQ14) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 14:'
+                          f'\n{Answer[14]}')
+                    while True:
+                        try:
+                            TempA14 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ14} and {TempA14}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 15:'
+                          f'\n{Question[15]}')
+                    while True:
+                        TempQ15 = input('Enter new question(format: "question"): ')
+                        if TempQ15 == "":
+                            print('Cannot be blank')
+                        elif TempQ15[0] != '"' or TempQ15[len(TempQ15) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 15:'
+                          f'\n{Answer[15]}')
+                    while True:
+                        try:
+                            TempA15 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ15} and {TempA15}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                print('\nSection 4 - Advanced Problems'
+                      '\nRead and solve these advanced problems'
+                      '\nLook up necessary equations as needed, omit units from entered answers'
+                      '\n2 attempts allowed, points deducted for multiple attempts'
+                      '\nPoints deducted for taking longer than 5 minutes')
+
+                while True:
+                    print(f'\nCurrent Question 16:'
+                          f'\n{Question[16]}')
+                    while True:
+                        TempQ16 = input('Enter new question(format: "question"): ')
+                        if TempQ16 == "":
+                            print('Cannot be blank')
+                        elif TempQ16[0] != '"' or TempQ16[len(TempQ16) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 16:'
+                          f'\n{Answer[16]}')
+                    while True:
+                        try:
+                            TempA16 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ16} and {TempA16}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 17:'
+                          f'\n{Question[17]}')
+                    while True:
+                        TempQ17 = input('Enter new question(format: "question"): ')
+                        if TempQ17 == "":
+                            print('Cannot be blank')
+                        elif TempQ17[0] != '"' or TempQ17[len(TempQ17) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 17:'
+                          f'\n{Answer[17]}')
+                    while True:
+                        try:
+                            TempA17 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ17} and {TempA17}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 18:'
+                          f'\n{Question[18]}')
+                    while True:
+                        TempQ18 = input('Enter new question(format: "question"): ')
+                        if TempQ18 == "":
+                            print('Cannot be blank')
+                        elif TempQ18[0] != '"' or TempQ18[len(TempQ18) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 18:'
+                          f'\n{Answer[18]}')
+                    while True:
+                        try:
+                            TempA18 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ18} and {TempA18}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 19:'
+                          f'\n{Question[19]}')
+                    while True:
+                        TempQ19 = input('Enter new question(format: "question"): ')
+                        if TempQ19 == "":
+                            print('Cannot be blank')
+                        elif TempQ19[0] != '"' or TempQ19[len(TempQ19) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 19:'
+                          f'\n{Answer[19]}')
+                    while True:
+                        try:
+                            TempA19 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ19} and {TempA19}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                while True:
+                    print(f'\nCurrent Question 20:'
+                          f'\n{Question[20]}')
+                    while True:
+                        TempQ20 = input('Enter new question(format: "question"): ')
+                        if TempQ20 == "":
+                            print('Cannot be blank')
+                        elif TempQ20[0] != '"' or TempQ20[len(TempQ20) - 1] != '"':
+                            print('Questions must be wrapped in quotation marks, ie: "5 + 5"')
+                        else:
+                            break
+                    print(f'\nCurrent Answer 20:'
+                          f'\n{Answer[20]}')
+                    while True:
+                        try:
+                            TempA20 = float(input('Enter new answer: '))
+                        except:
+                            print('Answer must be a number')
+                            continue
+
+                        break
+                    print(f'\nYou have entered:'
+                          f'\n{TempQ20} and {TempA20}'
+                          f'\nis this correct?')
+                    while True:
+                        EditCon = input('Y / N: ').upper()
+                        if EditCon == "":
+                            print('\nCannot be blank')
+                        elif EditCon != "Y" and EditCon != "N":
+                            print('\nMust enter a Y or an N')
+
+                        else:
+                            break
+                    if EditCon == "Y":
+                        break
+
+                print('\nEdit complete, updating files'
+                      '\nOriginal UserList, ScoreList, AList, QList and ClassStats files will be renamed.'
+                      '\nTo ensure no data is lost,'
+                      ' move dated files to a backup location when able')
+                try:
+                    os.rename(r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/QList.txt',
+                              r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/QList' + str(Current_Date) +'.txt')
+                except:
+                    print('QList did not exist so QList was not renamed')
+                try:
+                    os.rename(r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/AList.txt',
+                              r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/AList' + str(Current_Date) +'.txt')
+                except:
+                    print('AList did not exist so AList was not renamed')
+
+                with open("QList.txt", mode='w') as questions:
+                    print(TempQ1, file=questions)
+                    print(TempQ2, file=questions)
+                    print(TempQ3, file=questions)
+                    print(TempQ4, file=questions)
+                    print(TempQ5, file=questions)
+                    print(TempQ6, file=questions)
+                    print(TempQ7, file=questions)
+                    print(TempQ8, file=questions)
+                    print(TempQ9, file=questions)
+                    print(TempQ10, file=questions)
+                    print(TempQ11, file=questions)
+                    print(TempQ12, file=questions)
+                    print(TempQ13, file=questions)
+                    print(TempQ14, file=questions)
+                    print(TempQ15, file=questions)
+                    print(TempQ16, file=questions)
+                    print(TempQ17, file=questions)
+                    print(TempQ18, file=questions)
+                    print(TempQ19, file=questions)
+                    print(TempQ20, file=questions)
+
+                with open("AList.txt", mode='w') as answers:
+                    print(TempA1, file=answers)
+                    print(TempA2, file=answers)
+                    print(TempA3, file=answers)
+                    print(TempA4, file=answers)
+                    print(TempA5, file=answers)
+                    print(TempA6, file=answers)
+                    print(TempA7, file=answers)
+                    print(TempA8, file=answers)
+                    print(TempA9, file=answers)
+                    print(TempA10, file=answers)
+                    print(TempA11, file=answers)
+                    print(TempA12, file=answers)
+                    print(TempA13, file=answers)
+                    print(TempA14, file=answers)
+                    print(TempA15, file=answers)
+                    print(TempA16, file=answers)
+                    print(TempA17, file=answers)
+                    print(TempA18, file=answers)
+                    print(TempA19, file=answers)
+                    print(TempA20, file=answers)
+
+                try:
+                    os.rename(r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/UserList.txt',
+                              r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/UserList' + str(Current_Date) +'.txt')
+                except:
+                    print('UserList did not exist so UserList was not renamed')
+
+                try:
+                    os.rename(r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/ScoreList.txt',
+                              r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/ScoreList' + str(Current_Date) +'.txt')
+                except:
+                    print('ScoreList did not exist so ScoreList was not renamed')
+                try:
+                    os.rename(r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/ClassStats.txt',
+                              r'/Users/keyinstudent/PycharmProjects/pythonProjectPlayingWithTime/ClassStats' + str(Current_Date) +'.txt')
+                except:
+                    print('ClassStats did not exist so ClassStats was not renamed')
+                # I'll have to put all the modifiable assignment categories here
+                # and validate them to ensure it isn't easy to input wrong answers
+                # this will essentially double code length
+
+            elif Edit_Stat == "2":
+                print('\nYou have selected view scores.'
+                      '\nA file containing the following chart will be created.')
+                # code to check that UserList and UserScore are loaded correctly, located at start of program
+                print('{:<10}{:>8}{:>8}'.format("User Name", "Score", "Grade"))
+                print('_' * 26)
+                i = 1
+                while i <= (len(PrevUser) - 1):
+                    print(f'{PrevUser[i]:<10}{ScoreList[i]:>8}{ScoreList[i] / 200:>8,.1%}')
+                    i += 1
+                print('_' * 26)
+                print(f'Total number of users: {len(PrevUser)-1}'
+                      f'\nAverage score: {statistics.mean(ScoreList[1:])} '
+                      f'Average grade: {statistics.mean(ScoreList[1:]) / 200 * 100:.1f}%'
+                      f'\nMedian Score: {statistics.median(ScoreList[1:])} '
+                      f'Median Grade: {statistics.median(ScoreList[1:]) / 200 * 100:.1f}%')
+
+                with open("ClassStats.txt", mode='w') as stats:
+                    print('{:<10}{:>8}{:>8}'.format("User Name", "Score", "Grade"), file=stats)
+                    print('_' * 26, file=stats)
+                    i = 1
+                    while i <= (len(PrevUser) - 1):
+                        print(f'{PrevUser[i]:<10}{ScoreList[i]:>8}{ScoreList[i] / 200:>8.1%}', file=stats)
+                        i += 1
+                    print('_' * 26, file=stats)
+                    print(f'Total number of users: {len(PrevUser) - 1}'
+                          f'\nAverage score: {statistics.mean(ScoreList[1:])} '
+                          f'Average grade: {statistics.mean(ScoreList[1:]) / 200 * 100:.1f}%'
+                          f'\nMedian Score: {statistics.median(ScoreList[1:])} '
+                          f'Median Grade: {statistics.median(ScoreList[1:]) / 200 * 100:.1f}%', file=stats)
+
+
+                # display contents of UserScore and UserList as a chart user name in one column, score in the other
+                # end chart with test statistics ie: total users, mean, median and mode scores, maybe
+                while True:
+                    print('\nWould you like to exit admin mode?')
+                    Confirm = input('Please confirm (Y to Exit / N to select new Admin option): ').upper()
+                    if Confirm == "":
+                        print('\ncannot be blank')
+                    elif Confirm != "N" and reName != "Y":
+                        print("\nMust enter a Y or an N")
+                    else:
+                        break
+                if Confirm == "N":
+                    continue
+                else:
+                    break
+
+            elif Edit_Stat == "3":
+                while True:
+                    print('\nYou have selected add user to admin list.'
+                          '\n10 character limit on usernames applies.')
+                    New_Admin = input('Enter the Username to be added: ')
+                    if New_Admin == "":
+                        print('\nUsername cannot be blank')
+                    elif not New_Admin.isalpha():
+                        print('\nUser name must be letter characters only')
+                    elif len(New_Admin) > 10:
+                        New_Admin = New_Admin[0: 10]
+                        print('\nUser names of char length greater than 10 are cut off at that limit.\n'
+                              f'Is the user name "{New_Admin}" acceptable?')
+                        reName = input('(Y / N): ').upper()
+                        if reName == "":
+                            print('\ncannot be blank')
+                        elif reName != "N" and reName != "Y":
+                            print("\nMust enter a Y or an N")
+                    elif reName == "N":
+                        continue
+                    else:
+                        break
+                #AdminList += New_Admin
+                with open("AdminList.txt", mode='a+') as admins:
+                    print(f'{New_Admin}', file=admins)
+                # this would be written to the file containing AdminList and saved to file
+                while True:
+                    print('\nWould you like to exit admin mode?')
+                    Confirm = input('Please confirm (Y to Exit / N to select new Admin option): ').upper()
+                    if Confirm == "":
+                        print('\ncannot be blank')
+                    elif Confirm != "N" and reName != "Y":
+                        print("\nMust enter a Y or an N")
+                    else:
+                        break
+                if Confirm == "N":
+                    continue
+                else:
+                    break
+            elif Edit_Stat == "4":
+                while True:
+                    print('\nyou have selected exit admin mode')
+                    Confirm = input('Please confirm (Y to Exit / N to select new Admin option): ').upper()
+                    if Confirm == "":
+                        print('\ncannot be blank')
+                    elif Confirm != "N" and reName != "Y":
+                        print("\nMust enter a Y or an N")
+                    else:
+                        break
+                if Confirm == "N":
+                    continue
+                else:
+                    break
+            if Confirm == "Y":
+                break
+        if Confirm == "Y":
+            continue
+    #UserList[0:] += User_Name # here for testing
+    if User_Name in PrevUser:
+        print(f"\n{User_Name} has already attempted this test.\n"
+              "A new score will not be recorded for repeat attempts.")
+        while True:
+            print('\nWould you like to repeat the test?')
+            Confirm = input('Please select (Y to retry / N to exit): ').upper()
+            if Confirm == "":
+                print('\ncannot be blank')
+            elif Confirm != "N" and reName != "Y":
+                print("\nMust enter a Y or an N")
+            else:
+                break
+        if Confirm == "N":
+            break
+        else:
+            print('\nstart practice attempt')
+            print('\nWelcome to math test'
+                  '\nSection 1'
+                  '\n---------'
+                  '\nQuick Fire Problems'
+                  '\nThese questions are designed to test mental math skills'
+                  '\nAnswers will be whole numbers'
+                  '\nAnswer in less than 30 seconds for full marks'
+                  '\nHalf marks awarded for correct answers after the time limit')
+            input('\nHit "Enter" to start first section')
+
+            print(f'Question 1:\n{Question[1]}')
+            Start = time.time()
+            while True:
+                try:
+                    UseAns = int(input('Enter you answer: '))
+                except:
+                    print('Answer expected to be a whole number')
+                else:
+                    break
+            End = time.time()
+            if UseAns == int(Answer[1]):
+                Score += 5
+                if End - Start < 30:
+                    Score += 5
+
+            print(f'Question 2:\n{Question[2]}')
+            Start = time.time()
+            while True:
+                try:
+                    UseAns = int(input('Enter you answer: '))
+                except:
+                    print('Answer expected to be a whole number')
+                else:
+                    break
+            End = time.time()
+            if UseAns == int(Answer[2]):
+                Score += 5
+                if End - Start < 30:
+                    Score += 5
+
+            print(f'Question 3:\n{Question[3]}')
+            Start = time.time()
+            while True:
+                try:
+                    UseAns = int(input('Enter you answer: '))
+                except:
+                    print('Answer expected to be a whole number')
+                else:
+                    break
+            End = time.time()
+            if UseAns == int(Answer[3]):
+                Score += 5
+                if End - Start < 30:
+                    Score += 5
+
+            print(f'Question 4:\n{Question[4]}')
+            Start = time.time()
+            while True:
+                try:
+                    UseAns = int(input('Enter you answer: '))
+                except:
+                    print('Answer expected to be a whole number')
+                else:
+                    break
+            End = time.time()
+            if UseAns == int(Answer[4]):
+                Score += 5
+                if End - Start < 30:
+                    Score += 5
+
+            print(f'Question 5:\n{Question[5]}')
+            Start = time.time()
+            while True:
+                try:
+                    UseAns = int(input('Enter you answer: '))
+                except:
+                    print('Answer expected to be a whole number')
+                else:
+                    break
+            End = time.time()
+            if UseAns == int(Answer[5]):
+                Score += 5
+                if End - Start < 30:
+                    Score += 5
+            print('\nSection 2 - General Knowledge'
+                  '\nThere is no time limit on this section'
+                  '\nTwo attempts are allowed on each question '
+                  '\nHalf points for correct answer on second attempt.')
+            input("\nPress enter to begin this section")
+            QueAtt = 0
+            print("Question 6:")
+            while QueAtt < 2:
+                UseAns = input(f"{Question[6]}: ").lower()
+                if UseAns == Answer[6]:
+                    Score += (10 - (5 * QueAtt))
+                    QueAtt += 2
+                else:
+                    print("That's not it, try again")
+
+                    QueAtt += 1
+
+            QueAtt = 0
+            print("Question 7:")
+            while QueAtt < 2:
+                UseAns = input(f"{Question[7]}: ").lower()
+                if UseAns == Answer[7]:
+                    Score += (10 - (5 * QueAtt))
+                    QueAtt += 2
+                else:
+                    print("That's not it, try again")
+
+                    QueAtt += 1
+
+            QueAtt = 0
+            print("Question 8:")
+            while QueAtt < 2:
+                UseAns = input(f"{Question[8]}: ").lower()
+                if UseAns == Answer[8]:
+                    Score += (10 - (5 * QueAtt))
+                    QueAtt += 2
+                else:
+                    print("That's not it, try again")
+
+                    QueAtt += 1
+
+            QueAtt = 0
+            print("Question 9:")
+            while QueAtt < 2:
+                UseAns = input(f"{Question[9]}: ").lower()
+                if UseAns == Answer[9]:
+                    Score += (10 - (5 * QueAtt))
+                    QueAtt += 2
+                else:
+                    print("That's not it, try again")
+
+                    QueAtt += 1
+
+            QueAtt = 0
+            print("Question 10:")
+            while QueAtt < 2:
+                UseAns = input(f"{Question[10]}: ").lower()
+                if UseAns == Answer[10]:
+                    Score += (10 - (5 * QueAtt))
+                    QueAtt += 2
+                else:
+                    print("That's not it, try again")
+
+                    QueAtt += 1
+
+        print('\nSection 3 - Complex Algebraic Analysis'
+              '\nEquations and variables will be given, find the solution requested'
+              '\nFull marks for speedy answers, partial for correct but slower responses'
+              '\nRound all answers to 2 decimal places '
+              '\n2 attempts at no penalty')
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[11]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[11]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[11]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[12]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[12]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[12]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[13]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[13]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[13]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[14]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[14]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[14]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[15]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[15]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[15]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        print('\nSection 4 - Advanced Problems'
+              '\nRead and solve these advanced problems'
+              '\nLook up necessary equations as needed, omit units from entered answers'
+              '\n2 attempts allowed, points deducted for multiple attempts'
+              '\nPoints deducted for taking longer than 5 minutes')
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[16]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[16]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[16]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[17]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[17]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[17]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[18]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[18]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[18]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[19]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[19]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[19]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[20]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[20]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[20]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        print('\nQuiz Completed'
+              f'\nUser: {User_Name}'
+              f'\nScore: {Score}'
+              f'\nGrade: {Score / 200 * 100:.1f}%')
+        while True:
+            print('\nWould you like to exit program?')
+            Exit = input('Please confirm (Y to Exit / N to enter new user): ').upper()
+            if Exit == "":
+                print('\ncannot be blank')
+            elif Exit != "N" and reName != "Y":
+                print("\nMust enter a Y or an N")
+            else:
+                break
+        if Exit == "Y":
+            break
+        else:
+            continue
+    if Exit == "Y":
+        break
+    else:
+        print('\nWelcome to math test'
+              '\nSection 1'
+              '\n---------'
+              '\nQuick Fire Problems'
+              '\nThese questions are designed to test mental math skills'
+              '\nAnswers will be whole numbers'
+              '\nAnswer in less than 30 seconds for full marks'
+              '\nHalf marks awarded for correct answers after the time limit')
+        input('\nHit "Enter" to start first section')
+
+        print(f'Question 1:\n{Question[1]}')
+        Start = time.time()
+        while True:
+            try:
+                UseAns = int(input('Enter you answer: '))
+            except:
+                print('Answer expected to be a whole number')
+            else:
+                break
+        End = time.time()
+
+        if UseAns == int(Answer[1]):
+            Score += 5
+            #print(Score)
+            if End - Start < 30:
+                Score += 5
+                #print(Score)
+        #print(Score)
+        #print(UseAns)
+        #print(Answer[1])
+        print(f'Question 2:\n{Question[2]}')
+        Start = time.time()
+        while True:
+            try:
+                UseAns = int(input('Enter you answer: '))
+            except:
+                print('Answer expected to be a whole number')
+            else:
+                break
+        End = time.time()
+        if UseAns == int(Answer[2]):
+            Score += 5
+            if End - Start < 30:
+                Score += 5
+
+        print(f'Question 3:\n{Question[3]}')
+        Start = time.time()
+        while True:
+            try:
+                UseAns = int(input('Enter you answer: '))
+            except:
+                print('Answer expected to be a whole number')
+            else:
+                break
+        End = time.time()
+        if UseAns == int(Answer[3]):
+            Score += 5
+            if End - Start < 30:
+                Score += 5
+
+        print(f'Question 4:\n{Question[4]}')
+        Start = time.time()
+        while True:
+            try:
+                UseAns = int(input('Enter you answer: '))
+            except:
+                print('Answer expected to be a whole number')
+            else:
+                break
+        End = time.time()
+        if UseAns == int(Answer[4]):
+            Score += 5
+            if End - Start < 30:
+                Score += 5
+
+        print(f'Question 5:\n{Question[5]}')
+        Start = time.time()
+        while True:
+            try:
+                UseAns = int(input('Enter you answer: '))
+            except:
+                print('Answer expected to be a whole number')
+            else:
+                break
+        End = time.time()
+        if UseAns == int(Answer[5]):
+            Score += 5
+            if End - Start < 30:
+                Score += 5
+        print('\nSection 2 - General Knowledge'
+              '\nThere is no time limit on this section'
+              '\nTwo attempts are allowed on each question '
+              '\nHalf points for correct answer on second attempt.')
+        input("\nPress enter to begin this section")
+        QueAtt = 0
+        print("Question 6:")
+        while QueAtt < 2:
+            UseAns = input(f"{Question[6]}: ").lower()
+            if UseAns == Answer[6]:
+                Score += (10 - (5 * QueAtt))
+                QueAtt += 2
+            else:
+                print("That's not it, try again")
+
+                QueAtt += 1
+
+        QueAtt = 0
+        print("Question 7:")
+        while QueAtt < 2:
+            UseAns = input(f"{Question[7]}: ").lower()
+            if UseAns == Answer[7]:
+                Score += (10 - (5 * QueAtt))
+                QueAtt += 2
+            else:
+                print("That's not it, try again")
+
+                QueAtt += 1
+
+        QueAtt = 0
+        print("Question 8:")
+        while QueAtt < 2:
+            UseAns = input(f"{Question[8]}: ").lower()
+            if UseAns == Answer[8]:
+                Score += (10 - (5 * QueAtt))
+                QueAtt += 2
+            else:
+                print("That's not it, try again")
+
+                QueAtt += 1
+
+        QueAtt = 0
+        print("Question 9:")
+        while QueAtt < 2:
+            UseAns = input(f"{Question[9]}: ").lower()
+            if UseAns == Answer[9]:
+                Score += (10 - (5 * QueAtt))
+                QueAtt += 2
+            else:
+                print("That's not it, try again")
+
+                QueAtt += 1
+
+        QueAtt = 0
+        print("Question 10:")
+        while QueAtt < 2:
+            UseAns = input(f"{Question[10]}: ").lower()
+            if UseAns == Answer[10]:
+                Score += (10 - (5 * QueAtt))
+                QueAtt += 2
+            else:
+                print("That's not it, try again")
+
+                QueAtt += 1
+
+        print('\nSection 3 - Complex Algebraic Analysis'
+              '\nEquations and variables will be given, find the solution requested'
+              '\nFull marks for speedy answers, partial for correct but slower responses'
+              '\nRound all answers to 2 decimal places '
+              '\n2 attempts at no penalty')
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[11]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[11]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[11]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[12]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[12]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[12]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[13]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[13]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[13]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[14]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[14]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[14]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[15]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[15]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+
+        end = time.time()
+
+        if UseAns == float(Answer[15]):
+            Score += 5
+            if (end - start) < 60:
+                # complex assessment of time taken to award pts as a percentage of remaining time in bonus time
+                Score += math.ceil((1 - (end - start) / 60) * 5)
+
+        print('\nSection 4 - Advanced Problems'
+              '\nRead and solve these advanced problems'
+              '\nLook up necessary equations as needed, omit units from entered answers'
+              '\n2 attempts allowed, points deducted for multiple attempts'
+              '\nPoints deducted for taking longer than 5 minutes')
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[16]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[16]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+        end = time.time()
+
+        if UseAns == float(Answer[16]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[17]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[17]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[17]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[18]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[18]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[18]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[19]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[19]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[19]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+        input("\nHit enter to start next question: ")
+        QueAtt = 0
+        start = time.time()
+        while QueAtt < 2:
+            while True:
+                try:
+                    UseAns = float(input(f'{Question[20]}:'))
+                except:
+                    print('Answer must be a number - remember to round to 2 decimal places')
+                if UseAns == float(Answer[20]):
+                    QueAtt += 2
+                    break
+                else:
+                    print('That\'s not it try again - remember to round to 2 decimal places')
+                    QueAtt += 1
+                    break
+
+        end = time.time()
+
+        if UseAns == float(Answer[20]):
+            Score += 10
+            if QueAtt != 2:
+                Score -= 3
+            if (end - start) > 300:
+                Score -= 3
+
+    print('\nQuiz Completed'
+          f'\nUser: {User_Name}'
+          f'\nScore: {Score}'
+          f'\nGrade: {Score / 200 * 100:.1f}%')
+
+    with open("UserList.txt", mode='a+') as users:
+        print(User_Name, file=users)
+    with open("ScoreList.txt", mode='a+') as scores:
+        print(Score, file=scores)
+        # this will be the test code
+        # copy this into the retry suite with score tracking code disabled
+        # allow all questions and answers to be modified using admin options
+        # explain rules of each section at start of section
+        # ie timers, bonus marks, part marks, rounding etc
+        # at end add User_Name to UserList and save updated file
+        #UserList += User_Name
+        # at end display User_Name and User_Score as a fraction and a percentage
+        # also display current class average for comparison sake, maybe
+        # save User_Score to ScoreList at end
+        # Prompt user to restart test program or exit at end, maybe, maybe just end
+    while True:
+        print('\nWould you like to exit program?')
+        Exit = input('Please confirm (Y to Exit / N to enter new user): ').upper()
+        if Exit == "":
+            print('\ncannot be blank')
+        elif Exit != "N" and reName != "Y":
+            print("\nMust enter a Y or an N")
+        else:
+            break
+    if Exit == "Y":
+        break
+
+
